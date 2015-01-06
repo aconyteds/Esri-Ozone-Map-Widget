@@ -32,9 +32,15 @@ define(function() {
     var MAP_STATUS_VIEW = 'map.status.view';
     var MAP_STATUS_FORMAT = 'map.status.format';
     var MAP_STATUS_ABOUT = 'map.status.about';
+    
 
 
     var MAP_ERROR = 'map.error';
+    
+    var MAP_PORTAL_BASEMAPS_ADD = "map.portal.basemaps.add";
+    var MAP_PORTAL_BASEMAPS_SET = "map.portal.basemaps.set";
+    var MAP_PORTAL_SIGNIN = "map.portal.signIn";
+    var MAP_PORTAL_ITEM_ADD = "map.portal.item.add";
 
     /**
      * @copyright © 2013 Environmental Systems Research Institute, Inc. (Esri)
@@ -191,6 +197,11 @@ define(function() {
          * @type string
          */
         MAP_ERROR: MAP_ERROR,
+        
+        MAP_PORTAL_BASEMAPS_ADD:MAP_PORTAL_BASEMAPS_ADD,
+        MAP_PORTAL_BASEMAPS_SET:MAP_PORTAL_BASEMAPS_SET,
+        MAP_PORTAL_SIGNIN:MAP_PORTAL_SIGNIN,
+        MAP_PORTAL_ITEM_ADD:MAP_PORTAL_ITEM_ADD,
         /**
          * Returns an array of the OWF channels utilized by this implementation of the CMW API.
          * @return {Array<string>}
@@ -199,7 +210,7 @@ define(function() {
             return [this.MAP_OVERLAY_CREATE, this.MAP_OVERLAY_REMOVE, this.MAP_OVERLAY_HIDE,
                 this.MAP_OVERLAY_SHOW, this.MAP_OVERLAY_UPDATE,
                 this.MAP_STATUS_REQUEST, this.MAP_STATUS_REQUEST, this.MAP_STATUS_FORMAT, this.MAP_STATUS_ABOUT,
-                this.MAP_ERROR];
+                this.MAP_ERROR, this.MAP_PORTAL_BASEMAPS, this.MAP_PORTAL_SIGNIN];
         }
     };
 

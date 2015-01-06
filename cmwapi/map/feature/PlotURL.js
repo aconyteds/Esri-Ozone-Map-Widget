@@ -76,7 +76,6 @@ define(["cmwapi/Channels", "cmwapi/Validator", "cmwapi/map/Error"],
                     validData.msg);
                 return;
             }
-
             // Check all the feature objects; fill-in any missing attributes.
             for (var i = 0; i < payload.length; i ++) {
                 // The overlayId is optional; defaults to widget id if not specified.

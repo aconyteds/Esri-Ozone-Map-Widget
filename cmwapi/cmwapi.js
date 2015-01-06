@@ -1,6 +1,6 @@
 define(["cmwapi/Channels", "cmwapi/Validator", "cmwapi/map/Error", "cmwapi/map/Status", "cmwapi/map/Overlay",
-	    "cmwapi/map/Feature", "cmwapi/map/View"],
-    function(Channels, Validator, Error, Status, Overlay, Feature, View) {
+	    "cmwapi/map/Feature", "cmwapi/map/View", "cmwapi/map/Portal"],
+    function(Channels, Validator, Error, Status, Overlay, Feature, View, Portal) {
     /**
      * @copyright © 2013 Environmental Systems Research Institute, Inc. (Esri)
      *
@@ -65,6 +65,10 @@ define(["cmwapi/Channels", "cmwapi/Validator", "cmwapi/map/Error", "cmwapi/map/S
      * @see module:cmwapi/map/Error
      */
     Map.error = Error;
+    /**
+     * @see module:cmwapi/map/Portal
+     */
+    Map.portal=Portal;
 
     // Add any version information and static config elements here.
 

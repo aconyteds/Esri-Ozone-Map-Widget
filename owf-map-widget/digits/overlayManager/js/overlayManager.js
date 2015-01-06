@@ -33,9 +33,9 @@ define(["cmwapi-adapter/cmwapi-adapter"], function(cmwapiAdapter) {
      * @param notifier {module:cmwapi-adapter/notifier}
      * @alias module:digits/OverlayManager
      */
-    var OverlayManager =  function(map, errorNotifier, notifier) {
+    var OverlayManager =  function(data, errorNotifier, notifier) {
         infoNotifier = notifier;
-        this.adapter = adapter = new cmwapiAdapter(map, errorNotifier, notifier);
+        this.adapter = adapter = new cmwapiAdapter(data, errorNotifier, notifier);
 
         //The manager html is populated from a template @ /digits/overlayManager/index.html
         $('#popover_overlay_wrapper').load('./digits/overlayManager/index.html', function() {

@@ -1,7 +1,7 @@
 
 define(["cmwapi/cmwapi", "cmwapi-adapter/Overlay", "cmwapi-adapter/Feature", "cmwapi-adapter/Status",
-        "cmwapi-adapter/View", "cmwapi-adapter/Error", "cmwapi-adapter/EsriOverlayManager"],
-        function(CommonMapApi, Overlay, Feature, Status, View, Error, OverlayManager) {
+        "cmwapi-adapter/View", "cmwapi-adapter/Error", "cmwapi-adapter/EsriOverlayManager", "cmwapi-adapter/Portal"],
+        function(CommonMapApi, Overlay, Feature, Status, View, Error, OverlayManager, Portal) {
     /**
      * @copyright © 2013 Environmental Systems Research Institute, Inc. (Esri)
      *
@@ -34,7 +34,7 @@ define(["cmwapi/cmwapi", "cmwapi-adapter/Overlay", "cmwapi-adapter/Feature", "cm
      * @param infoNotifier
      * @alias module:cmwapi-adapter/cmwapi-adapter
      */
-    var EsriAdapter = function(map, errorNotifier, infoNotifier) {
+    var EsriAdapter = function(data, errorNotifier, infoNotifier) {
         // Capture 'this' for use in custom event handlers.
         var me = this;
 
@@ -247,7 +247,7 @@ define(["cmwapi/cmwapi", "cmwapi-adapter/Overlay", "cmwapi-adapter/Feature", "cm
 
         };
 
-        this.overlayManager = new OverlayManager(map, errorNotifier, infoNotifier);
+        this.overlayManager = new OverlayManager(data.map, errorNotifier, infoNotifier);
         this.overlayManager.retrieveState();
 
         // Attach any exposed instance attributes.
@@ -260,36 +260,43 @@ define(["cmwapi/cmwapi", "cmwapi-adapter/Overlay", "cmwapi-adapter/Feature", "cm
          * @see module:cmwapi-adapter/Feature
          * @memberof! module:cmwapi-adapter/cmwapi-adapter#
          */
-        this.feature = new Feature(this, this.overlayManager, map);
+        this.feature = new Feature(this, this.overlayManager, data.map);
         /**
          * @see module:cmwapi-adapter/Status
          * @memberof! module:cmwapi-adapter/cmwapi-adapter#
          */
-        this.status = new Status(this, map );
+        this.status = new Status(this, data.map );
         /**
          * @see module:cmwapi-adapter/View
          * @memberof! module:cmwapi-adapter/cmwapi-adapter#
          */
-        this.view = new View(map, this.overlayManager);
+        this.view = new View(data.map, this.overlayManager);
         /**
          * @see module:cmwapi-adapter/Error
          * @memberof! module:cmwapi-adapter/cmwapi-adapter#
          */
         this.error = new Error(this);
+        
+        /** TODO:
+         * THIS WILL BE FOR PORTAL!!!!!!!!!!!!!!!!!!!!
+         * @see module:cmwapi-adapter/Portal
+         * @memberof! module:cmwapi-adapter/cmwapi-adapter#         *
+         */
+        this.portal=new Portal(data.map, data.basemapGallery);
 
         // Attach any custom map handlers.
-        this.clickHandler = map.on("click", sendClick);
-        this.dblClickHandler = map.on("dbl-click", sendDoubleClick);
-        this.extentChangeHandler = map.on("extent-change", sendStatusViewUpdate);
-        this.upClickHandler = map.on('mouse-up', updateMouseLocation);
-        this.dropEnabledHandler = map.on('mouse-over', setDropEnabled);
-        this.dropDisabledHandler = map.on('mouse-out', setDropDisabled);
-        this.unloadMapHandler = map.on("unload", unloadHandlers);
+        this.clickHandler = data.map.on("click", sendClick);
+        this.dblClickHandler = data.map.on("dbl-click", sendDoubleClick);
+        this.extentChangeHandler = data.map.on("extent-change", sendStatusViewUpdate);
+        this.upClickHandler = data.map.on('mouse-up', updateMouseLocation);
+        this.dropEnabledHandler = data.map.on('mouse-over', setDropEnabled);
+        this.dropDisabledHandler = data.map.on('mouse-out', setDropDisabled);
+        this.unloadMapHandler = data.map.on("unload", unloadHandlers);
 
-        map.on('load', this.view.setInitialView);
+        data.map.on('load', this.view.setInitialView);
 
         //Attach drop zone handler to OWF.
-        OWF.DragAndDrop.addDropZoneHandler({ dropZone: map.root, handler: sendDragAndDrop });
+        OWF.DragAndDrop.addDropZoneHandler({ dropZone: data.map.root, handler: sendDragAndDrop });
     };
 
     return EsriAdapter;

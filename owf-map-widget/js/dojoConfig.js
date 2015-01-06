@@ -70,7 +70,7 @@ if (!window.owfJsPath) {
      * @global
      */
     window.owfJsPath = (function() {
-        var path = window.contextPath + "vendor/js/";
+        var path = window.contextPath + "../vendor/js/";
 
         if (document.referrer &&
             /\/owf\/$/i.test(decodeURIComponent(document.referrer))) {
@@ -89,11 +89,11 @@ if (!window.esriJsPath) {
      * @global
      */
     window.esriJsPath = (function() {
-        var path = "http://js.arcgis.com/3.7/";
+        var path = "http://js.arcgis.com/3.12/";
 
         if (window.isOffline()) {
             // Use local copy of API files
-            path = window.contextPath + "vendor/js/esri-3.7/";
+            path = window.contextPath + "../vendor/js/esri/";
         } else if (window.location.protocol != "file:") {
             // Match same protocol as page to avoid mixed content issues
             path = path.replace("http://", window.location.protocol + "//");
@@ -139,18 +139,18 @@ dojoConfig.hasCache = {
 
 dojoConfig.packages = [
     // Required by ESRI and its bundled dojo
-    { location: window.esriJsPath + "js/dojo/dojox", name: "dojox" },
-    { location: window.esriJsPath + "js/dgrid", main: "OnDemandGrid", name: "dgrid" },
-    { location: window.esriJsPath + "js/dojo/dijit", name: "dijit" },
-    { location: window.esriJsPath + "js/xstyle", main: "css", name: "xstyle" },
-    { location: window.esriJsPath + "js/esri", name: "esri" },
-    { location: window.esriJsPath + "js/dojo/dojo", name: "dojo" },
-    { location: window.esriJsPath + "js/put-selector", main: "put", name: "put-selector" },
+    { location: window.esriJsPath + "dojox", name: "dojox" },
+    { location: window.esriJsPath + "dgrid", main: "OnDemandGrid", name: "dgrid" },
+    { location: window.esriJsPath + "dijit", name: "dijit" },
+    { location: window.esriJsPath + "xstyle", main: "css", name: "xstyle" },
+    { location: window.esriJsPath + "esri", name: "esri" },
+    { location: window.esriJsPath + "dojo", name: "dojo" },
+    { location: window.esriJsPath + "put-selector", main: "put", name: "put-selector" },
 
     // Additional packages for this webapp
     { location: window.contextPath + "digits", name: "digits" },
     { location: window.contextPath + "../cmwapi", name: "cmwapi" },
     { location: window.contextPath + "../cmwapi-adapter", name: "cmwapi-adapter" },
     { location: window.contextPath + "js", name:"OWFWidgetExtensions"},
-    { location: window.contextPath + "vendor/js", name: "notify" }
+    { location: window.contextPath + "../vendor/js", name: "notify" }
 ];
