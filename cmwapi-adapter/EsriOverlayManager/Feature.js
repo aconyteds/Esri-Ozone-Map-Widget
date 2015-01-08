@@ -2,10 +2,10 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
     "esri/layers/GraphicsLayer", "esri/graphic","esri/symbols/PictureMarkerSymbol", "esri/geometry/Point", "esri/InfoTemplate",
      "esri/layers/FeatureLayer", "esri/layers/ArcGISDynamicMapServiceLayer", "esri/layers/ArcGISImageServiceLayer", "esri/config",
      "esri/symbols/SimpleFillSymbol","esri/symbols/SimpleLineSymbol","esri/dijit/AttributeInspector", "dojo/dom-construct",
-     "esri/tasks/query", "dojo/_base/Color","esri/renderers/SimpleRenderer"],
+     "esri/tasks/query", "dojo/_base/Color","esri/renderers/SimpleRenderer", "esri/urlUtils"],
     function(cmwapi, KMLLayer, WMSLayer, WMSLayerInfo, ViewUtils, GraphicsLayer, Graphic, PictureMarkerSymbol, Point, InfoTemplate,
         FeatureLayer, ArcGISDynamicMapServiceLayer, ArcGISImageServiceLayer, esriConfig, SimpleFillSymbol, SimpleLineSymbol,
-        AttributeInspector,domConstruct, Query, Color, SimpleRenderer) {
+        AttributeInspector,domConstruct, Query, Color, SimpleRenderer, urlUtils) {
 
     /**
      * @copyright © 2013 Environmental Systems Research Institute, Inc. (Esri)
@@ -75,6 +75,17 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
 
             cmwapi.error.send(sender, type, msg, error);
         };
+        
+        function _checkProxyRule(url){
+        	var urlObj=domConstruct.create("a", {href:url});
+        	//Function will determine if the URL needs to be passed through a proxy and returns the correct URL
+        	if(typeof urlUtils.getProxyRule(url)==="undefined"){
+        		urlUtils.addProxyRule({
+        			proxyUrl:esri.config.defaults.io.proxyUrl,
+        			urlPrefix:urlObj.hostname
+        		});
+        	}
+        }
 
         /**
          * @method plotFeatureUrl
@@ -97,6 +108,7 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
             if(typeof(overlay.features[featureId]) !== 'undefined') {
                 me.deleteFeature(caller, overlayId, featureId);
             }
+            _checkProxyRule(url);
             //if a type we like then handler function
             if(format === 'kml') {
                 plotKmlFeatureUrl(caller, overlayId, featureId, name, url, zoom);
