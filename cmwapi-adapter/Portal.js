@@ -1,7 +1,7 @@
 define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/registry", "dojo/dom-construct", "esri/arcgis/Portal", "esri/IdentityManager", "esri/arcgis/OAuthInfo","dojo/on", 
-        "dojo/_base/array",  "esri/arcgis/utils", "esri/request", "dojo/_base/lang"], 
+        "dojo/_base/array",  "esri/arcgis/utils", "esri/request", "dojo/_base/lang", "dijit/Dialog", "dijit/form/Button", "dojo/Deferred"], 
 		function(cmwapi, basemaps, ContentPane, registry, domConstruct, arcgisPortal, esriId, OAuthInfo, on,
-				array, arcgisUtils, esriRequest, lang){
+				array, arcgisUtils, esriRequest, lang, Dialog, Button, Deferred){
 	var portal = function(map, gallery){
 		var me=this;
 		var PORTAL_PREF_NAMESPACE = 'com.esri';
@@ -73,9 +73,8 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         //Handles an id(string) by setting the map's basemap which has been defined in the esri/basemaps objet
         me.handleBasemapSet=function(sender, data){
         	//console.log(["data:", data, basemaps]);
-        	var bmGalleryMap=gallery.getSelected();
-        	if(bmGalleryMap){
-        		
+        	if(!basemaps[data.id]){
+        		cmwapi.portal.basemaps.add.send({id:data.id, data:data.data});
         	}
         	//console.log([gallery.getSelected(), map.getLayersVisibleAtScale(map.getScale())]);
         	map.setBasemap(data.id);
@@ -90,8 +89,8 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
                     type="arcgis-feature";
                 else if((result.serviceDataType && result.serviceDataType.search("Image")!==-1) || result.url.search("ImageServer")!==-1)
                     type="arcgis-image";
-                else if(result.singleFusedMapCache)//TODO Functionality is not yet Handled by Feature API
-                    type="arcgis-tiled";
+                else if(result.singleFusedMapCache)
+                    type="arcgis-tiledmapservice";
             }
             else if(result.url.search("?request=GetCapabilities&service=WMS")!==-1){//WMS Service Types pulls from SOAP via AGS
                 type="wms";
@@ -104,12 +103,40 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         
         function _handleMapService(id, url, title){
         	esriRequest({url:url, content:{f:"json"}}, {useProxy:true}).then(function(data){
-        		console.log(arguments);
+        		//console.log(arguments);
         		lang.mixin(data, {url:url});
-        		var featureParams={overlayId:id, featureId:id, name:title, url:url, format:_getType(data)};/*,zoom:""*/
-        		console.log(featureParams);
+        		var featureParams={overlayId:id, featureId:title, name:title, url:url, format:_getType(data)};/*,zoom:""*/
+        		//console.log(featureParams);
         		cmwapi.feature.plot.url.send(featureParams);
         	});
+        }
+        
+        function _handleWebMap(obj){
+        	(function(){
+        		var confirm=new Deferred();
+        		var confirmation=new Dialog({
+	            	title:"WARNING!",
+	            	content:"This action will remove all current Layers from the Map. Continue?"
+	            });
+        		confirmation.addChild(new Button({label:"Confirm",onClick:function(){
+	        			cmwapi.overlay.remove.all.send();
+	        			confirm.resolve(confirmation);
+	        		}
+	        	}));
+	        	confirmation.addChild(new Button({label:"Cancel", onClick:function(){
+	        		confirm.cancel(confirmation);
+	        	}}));
+	        	confirmation.startup();
+	        	confirmation.show();
+	        	return confirm.promise;
+        	})().then(function(succ){
+        		//User Pressed Accept Button
+        		succ.destroy();
+        		console.log(["Resolution:", obj]);
+        	},function(err){
+        		//User Pressed Cancel Button
+        		err.destroy();
+        	});     	
         }
         
         me.handlePortalItemAdd=function(sender, data){
@@ -118,9 +145,9 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         	arcgisUtils.getItem(data.id).then(function(it){
         		if(data.type==="Map Service"){
         			var item=it.item;
-        			_handleMapService(item.id, item.url, item.title)
+        			_handleMapService(item.id, item.url, item.title);
         		}else if(data.type==="Web Map"){
-        			
+        			_handleWebMap(it);
         		}
 				console.log(["item:", item]);
 			});

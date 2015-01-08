@@ -23,7 +23,7 @@ define(["dojo/_base/declare", "dijit/layout/ContentPane", "dojo/_base/array", "e
 				
 			},
 			onClick:function(){
-				cmwapi.portal.basemaps.set.send({id:this.basemapInfo.item.id});
+				cmwapi.portal.basemaps.set.send({id:this.basemapInfo.item.id, data:this.basemapInfo});
 			}
 		})
 	});
