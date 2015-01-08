@@ -1,6 +1,7 @@
 define(["cmwapi/Channels", "cmwapi/map/overlay/Create", "cmwapi/map/overlay/Remove",
-    "cmwapi/map/overlay/Hide", "cmwapi/map/overlay/Show", "cmwapi/map/overlay/Update"],
-    function(Channels, Create, Remove, Hide, Show, Update) {
+    "cmwapi/map/overlay/Hide", "cmwapi/map/overlay/Show", "cmwapi/map/overlay/Update",
+    "cmwapi/map/overlay/RemoveAll"],
+    function(Channels, Create, Remove, Hide, Show, Update, RemoveAll) {
 
     /**
      * @copyright © 2013 Environmental Systems Research Institute, Inc. (Esri)
@@ -48,6 +49,7 @@ define(["cmwapi/Channels", "cmwapi/map/overlay/Create", "cmwapi/map/overlay/Remo
          */
         update: Update
     };
+    Overlay.remove.all=RemoveAll;
 
     return Overlay;
 });

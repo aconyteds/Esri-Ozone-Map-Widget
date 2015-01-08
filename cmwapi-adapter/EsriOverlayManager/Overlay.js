@@ -130,6 +130,15 @@ define(["cmwapi/cmwapi", "cmwapi-adapter/ViewUtils"], function(cmwapi, ViewUtils
                 manager.treeChanged();
             }
         };
+        
+        /** This function removes all Overlays from the Map
+         * */
+        me.removeAllOverlays = function(){
+        	console.log(manager.overlays);
+        	for(var i in manager.overlays){
+        		me.removeOverlay(null, i);
+        	}
+        }
 
         /**
          * @method hideOverlay

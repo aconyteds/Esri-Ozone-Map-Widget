@@ -2,6 +2,7 @@ define(function() {
 
     var MAP_OVERLAY_CREATE = 'map.overlay.create';
     var MAP_OVERLAY_REMOVE = 'map.overlay.remove';
+    var MAP_OVERLAY_REMOVE_ALL = "map.overlay.remove.all";
     var MAP_OVERLAY_HIDE = 'map.overlay.hide';
     var MAP_OVERLAY_SHOW = 'map.overlay.show';
     var MAP_OVERLAY_UPDATE = 'map.overlay.update';
@@ -77,6 +78,7 @@ define(function() {
          * @type string
          */
          MAP_OVERLAY_REMOVE: MAP_OVERLAY_REMOVE,
+         MAP_OVERLAY_REMOVE_ALL: MAP_OVERLAY_REMOVE_ALL,
         /**
          * The name of the overlay hide channel.
          * @type string
@@ -207,7 +209,7 @@ define(function() {
          * @return {Array<string>}
          */
         getChannels: function() {
-            return [this.MAP_OVERLAY_CREATE, this.MAP_OVERLAY_REMOVE, this.MAP_OVERLAY_HIDE,
+            return [this.MAP_OVERLAY_CREATE, this.MAP_OVERLAY_REMOVE, this.MAP_OVERLAY_REMOVE_ALL, this.MAP_OVERLAY_HIDE,
                 this.MAP_OVERLAY_SHOW, this.MAP_OVERLAY_UPDATE,
                 this.MAP_STATUS_REQUEST, this.MAP_STATUS_REQUEST, this.MAP_STATUS_FORMAT, this.MAP_STATUS_ABOUT,
                 this.MAP_ERROR, this.MAP_PORTAL_BASEMAPS, this.MAP_PORTAL_SIGNIN];

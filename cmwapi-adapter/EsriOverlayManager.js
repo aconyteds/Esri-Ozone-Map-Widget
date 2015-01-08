@@ -181,6 +181,10 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "cmwapi-adapter/EsriOverlayMana
                 overlayId: overlayId
             });
         };
+        
+        me.sendOverlayRemoveAll = function(){
+        	cmwapi.overlay.remove.all.send();
+        }
 
         /**
          * Pass through a call to the common map widget api for map.overlay.hide

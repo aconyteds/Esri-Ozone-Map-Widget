@@ -74,6 +74,11 @@ define(["cmwapi/cmwapi"], function(CommonMapApi) {
 
         };
         CommonMapApi.overlay.remove.addHandler(me.handleRemove);
+        
+        me.handleRemoveAll = function(sender){
+        	overlayManager.overlay.removeAllOverlays();
+        }
+        CommonMapApi.overlay.remove.all.addHandler(me.handleRemoveAll);
 
         /**
          * Handler for an indcoming request to hide a layer.
