@@ -28,7 +28,6 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
     			new arcgisPortal.Portal(data.portalInfo.portalUrl).signIn().then(function(portalData){
     				portalObj=portalData;
     				arcgisUtils.arcgisUrl=portalData.portal.portalUrl+"content/items";
-    				//console.log(portalObj);
     			});
     		});      	
         }
@@ -39,9 +38,8 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         //FIXME: Setting the same basemap using the alternate method will remove all layers from the map because they are pointing at the same source
         var portalBM=[], galleryBM=null;
         function _mapRemoveLayers(arr){
-        	//console.log(["MAP:", map.getLayersVisibleAtScale(map.getScale()), galleryBM, portalBM, arr]);
         	var mapLayers=map.getLayersVisibleAtScale(map.getScale());
-        	if(arr.length>0){
+        	if(arr && arr.length>0){
 	        	array.forEach(mapLayers, function(mLyr){
 	        		array.forEach(arr, function(lyr){
 	        			if(mLyr.url===lyr.url){
@@ -65,25 +63,21 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         
         //Adds a basemap to the esri/basemaps object for use with the Map via map.setBasemap
         me.handleBasemapAdd=function(sender, data){
-        	//console.log([sender, data]);
         	basemaps[data.id]=data.data;
         }
         cmwapi.portal.basemaps.add.addHandler(me.handleBasemapAdd);
         
-        //Handles an id(string) by setting the map's basemap which has been defined in the esri/basemaps objet
+        //Handles an id(string) by setting the map's basemap which has been defined in the esri/basemaps object
         me.handleBasemapSet=function(sender, data){
-        	//console.log(["data:", data, basemaps]);
-        	if(!basemaps[data.id]){
-        		cmwapi.portal.basemaps.add.send({id:data.id, data:data.data});
+        	if(!basemaps[data.id] && data.data){
+        		me.handleBasemapAdd(null, {id:data.id, data:data.data});
         	}
-        	//console.log([gallery.getSelected(), map.getLayersVisibleAtScale(map.getScale())]);
         	map.setBasemap(data.id);
         }
         cmwapi.portal.basemaps.set.addHandler(me.handleBasemapSet);
         
         var _getType=function(result){
             var type="arcgis-dynamicmapservice";
-            //console.log(result);
             if(result.url.search("rest/services")!==-1){//ESRI REST service types
                 if ((result.type && result.type.search("Feature Layer")!==-1) || result.url.search("FeatureServer")!==-1)
                     type="arcgis-feature";
@@ -103,10 +97,8 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         
         function _handleMapService(id, url, title){
         	esriRequest({url:url, content:{f:"json"}}, {useProxy:true}).then(function(data){
-        		//console.log(arguments);
         		lang.mixin(data, {url:url});
         		var featureParams={overlayId:id, featureId:title, name:title, url:url, format:_getType(data)};/*,zoom:""*/
-        		//console.log(featureParams);
         		cmwapi.feature.plot.url.send(featureParams);
         	});
         }
@@ -132,7 +124,11 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         	})().then(function(succ){
         		//User Pressed Accept Button
         		succ.destroy();
-        		console.log(["Resolution:", obj]);
+        		//console.log(["Resolution:", obj]);
+        		cmwapi.portal.basemaps.set.send({id:obj.item.id, data:obj.itemData.baseMap});
+        		array.forEach(obj.itemData.operationalLayers, function(layer){
+        			_handleMapService(layer.id, layer.url, layer.title);
+        		});
         	},function(err){
         		//User Pressed Cancel Button
         		err.destroy();
@@ -141,15 +137,14 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         
         me.handlePortalItemAdd=function(sender, data){
         	//Add an overlay to the map, first determine the type of item being pushed
-        	console.log(data);   
         	arcgisUtils.getItem(data.id).then(function(it){
         		if(data.type==="Map Service"){
         			var item=it.item;
         			_handleMapService(item.id, item.url, item.title);
-        		}else if(data.type==="Web Map"){
+        		}
+        		else if(data.type==="Web Map"){
         			_handleWebMap(it);
         		}
-				console.log(["item:", item]);
 			});
         }
         cmwapi.portal.item.add.addHandler(me.handlePortalItemAdd);
