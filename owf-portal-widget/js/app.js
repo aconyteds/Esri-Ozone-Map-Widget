@@ -39,10 +39,8 @@ require(['dojo/_base/xhr', "custom/imw", "dojo/_base/array", "esri/arcgis/Portal
 			esriId.registerOAuthInfos([oAuthInfo]);
 		}
 		esriId.getCredential(data.portalInfo.portalUrl).then(function(login){
-			console.log(["login:", login]);
 			new arcgisPortal.Portal(data.portalInfo.portalUrl).signIn().then(function(portalData){
-				cmwapi.portal.signIn.send(data);
-				
+				cmwapi.portal.signIn.send(data);				
 				//console.log(portalData);
 				new portal({style:"height:100%; width:100%;", tabPosition:"bottom", portalOptions:portalData}).placeAt("portalContainer").startup();
 			});
