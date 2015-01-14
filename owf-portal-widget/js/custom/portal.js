@@ -9,7 +9,7 @@ define(["dojo/dom-construct", "dijit/layout/TabContainer", "dijit/layout/Content
 				this.portalInterface=new ContentPane({title:"WebMap", content:"Welcome "+portalObj.fullName+"!"});
 				this.addChild(this.portalInterface);
 				var searchContainer=domConstruct.create("div", null, this.portalInterface.domNode);
-				new Search({portal:this.portalOptions.portal}).placeAt(searchContainer);	
+				new Search({portal:this.portalOptions.portal, portalSharingUrl:portalSharingUrl, targetContainer:this}).placeAt(searchContainer);	
 				
 				/**User Content Tab*/
 				this.portalOptions.getContent().then(lang.hitch(this, function(data){
@@ -17,6 +17,7 @@ define(["dojo/dom-construct", "dijit/layout/TabContainer", "dijit/layout/Content
 						store:itemStore(data.items, data.folders),
 						selectionMode:"single",
 						query:{parent:null},
+						sort:"title",
 						columns:[
 							Tree({label:"Name", field:"title"}),
 							{label:"Type", field:"type"}
