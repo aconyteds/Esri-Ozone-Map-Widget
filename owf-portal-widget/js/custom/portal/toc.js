@@ -1,9 +1,12 @@
-define(["dojo/_base/declare", "dgrid/OnDemandGrid", "dgrid/Selection", "dijit/layout/ContentPane", "dojo/_base/lang", "dojo/on", "cmwapi/cmwapi"],
-	function(declare, OnDemandGrid, Selection, ContentPane, lang, on,  cmwapi){
+define(["dojo/_base/declare", "dgrid/OnDemandGrid", "dgrid/Selection", "dijit/layout/ContentPane", "dojo/_base/lang", "dojo/on", "cmwapi/cmwapi", "dojo/dom-attr"],
+	function(declare, OnDemandGrid, Selection, ContentPane, lang, on,  cmwapi, domAttr){
 	return declare([ContentPane],{
 		postCreate:function(){
 			var me=this;
+			this.set("style", "padding:0; overflow:hidden;");
 			this.grid=new this._grid(this.gridParams);
+			console.log(this.grid);
+			domAttr.set(this.grid.domNode, "style", {height:"100%"});
 			this.addChild(this.grid);
 			this.grid.startup();
 			var obs=this.gridParams.store.query();
@@ -21,11 +24,10 @@ define(["dojo/_base/declare", "dgrid/OnDemandGrid", "dgrid/Selection", "dijit/la
 				if(row.data.type=="Map Service" || row.data.type=="Web Map"){
 					cmwapi.portal.item.add.send({id:row.id, type:row.data.type, sharingUrl:me.sharingUrl});
 				}
-				
 			});
-			
 		},
 		_grid:declare([OnDemandGrid, Selection],{
+			noDataMessage:"No results were found"
 			
 		})
 	})	

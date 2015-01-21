@@ -3,7 +3,7 @@ define(["cmwapi/Channels", "cmwapi/Validator", "cmwapi/map/Error"], function(Cha
 		send:function(data){
 			var validData = Validator.validObjectOrArray( data );
             var payload = validData.payload;
-            console.log([payload, validData]);
+            //console.log([payload, validData]);
 
             // If the data was not in proper payload structure, an Object or Array of objects,
             // note the error and return.
