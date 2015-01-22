@@ -30,7 +30,7 @@ define(["dojo/_base/declare", "dojo/store/Memory", "dojo/Stateful", "dojo/store/
 			});
 			structure.set("items", items);
 			array.forEach(folders, function(folder){
-				mStore.put({title: folder.title, id:folder.id.toString(), url:folder.url, type:"directory"});
+				mStore.put({title: folder.title, id:folder.id.toString(), url:folder.url, type:"Directory"});
 				folder.getItems().then(function(items){
 					structure.set("items", items);
 				});				
@@ -48,7 +48,6 @@ define(["dojo/_base/declare", "dojo/store/Memory", "dojo/Stateful", "dojo/store/
 				return false;
 			},
 			startup:function(){
-				
 			}
 		});
 		return this._createStore(items, folders);

@@ -9,6 +9,46 @@
 				<option value="queryUsers">Search for User</option>
 			</select>
 			<div type="submit" data-dojo-type="dijit/form/Button" data-dojo-attach-point="searchButton" >Search</div>
-		</div>				
+			
+		</div>
+		<div data-dojo-type="dijit/TitlePane" data-dojo-props="title:'Advanced Search Options'" height=400 data-dojo-attach-point="AdvSearchOptions">
+			<span>Modify the following options to help refine your search:</span>
+			<table>
+				<tr>
+					<td>Service Type:</td>
+				</tr>
+				<tr>
+					<td>
+						<ul style="list-style-type:none; margin:0; padding:0;">
+							<li>
+								<input name="typeKeywords" data-dojo-type="dijit/form/CheckBox" value="'Map' AND 'Web Map'" checked/>
+								<span>Web Map's</span>
+							</li>
+							<li>
+								<input name="typeKeywords" data-dojo-type="dijit/form/CheckBox" value="'Data' AND 'Map Service'" checked/>
+								<span>Map Service's</span>
+							</li>
+							<li>
+								<input name="typeKeywords" data-dojo-type="dijit/form/CheckBox" value="'Data' AND 'Feature Service'" checked/>
+								<span>Feature Service's</span>
+							</li>								
+							<li>
+								<input name="typeKeywords" data-dojo-type="dijit/form/CheckBox" value="'Data' AND 'Image Service'" checked/>
+								<span>Image Service's</span>
+							</li>
+							<li>
+								<input name="typeKeywords" data-dojo-type="dijit/form/CheckBox" value="'Data' AND 'KML'" />
+								<span>KML's</span>
+							</li>
+							<li>
+								<input name="typeKeywords" data-dojo-type="dijit/form/CheckBox" value="'Data' AND 'OGC'" />
+								<span>WMS's</span>
+							</li>
+							
+						</ul>
+					</td>
+				</tr>
+			</table>
+		</div>			
 	</div>
 </div>

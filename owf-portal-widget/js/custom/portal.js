@@ -1,7 +1,7 @@
 define(["dojo/dom-construct", "dijit/layout/TabContainer", "dijit/layout/ContentPane", "dojo/_base/declare", "dojo/_base/lang", "esri/arcgis/Portal", "custom/portal/toc", "custom/portal/basemapGallery",
-        "dojo/_base/array", "cmwapi/cmwapi", "esri/arcgis/utils", "custom/portal/search", "dgrid/tree", "custom/portal/itemStore", "dijit/layout/AccordionContainer"],
+        "dojo/_base/array", "cmwapi/cmwapi", "esri/arcgis/utils", "custom/portal/searchInterface", "dgrid/tree", "custom/portal/itemStore", "dijit/layout/AccordionContainer", "custom/portal/search"],
 	function(domConstruct, TabContainer, ContentPane, declare, lang,  arcgisPortal, portalToc, basemapGallery,
-			array, cmwapi, arcgisUtils, Search, Tree, itemStore, AccordionContainer){
+			array, cmwapi, arcgisUtils, SearchInterface, Tree, itemStore, AccordionContainer, search){
 		return declare([TabContainer], {
 			postCreate:function(){
 				var portalObj=this.portalOptions, portalSharingUrl=this.portalOptions.portal.portalUrl+"content/items";
@@ -12,10 +12,13 @@ define(["dojo/dom-construct", "dijit/layout/TabContainer", "dijit/layout/Content
 				this.portalInterface.addChild(portalOptionsContainer);
 				var searchContainer=new ContentPane({title:"Search for Content within "+portalObj.portal.name});
 				portalOptionsContainer.addChild(searchContainer);
-				var _search=new Search({portal:portalObj.portal, portalSharingUrl:portalSharingUrl, targetContainer:this}).placeAt(searchContainer);
+				var _search=new SearchInterface({portal:portalObj.portal, portalSharingUrl:portalSharingUrl, targetContainer:this}).placeAt(searchContainer);
+				var searchWorker=new search({portal:portalObj.portal, portalSharingUrl:portalSharingUrl, targetContainer:this});
+				searchWorker.groupQuery("group", null, this);
+				searchWorker.itemQuery("item", null, this);
 				
-				/**User Content Tab*/
-				this.portalOptions.getContent().then(lang.hitch(this, function(data){
+				/**User Content Accordion*/
+				portalObj.getContent().then(lang.hitch(this, function(data){
 					var userGridParams={
 						store:itemStore(data.items, data.folders),
 						selectionMode:"single",
