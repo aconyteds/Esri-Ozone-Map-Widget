@@ -4,8 +4,10 @@ define(["dojo/_base/declare", "dgrid/OnDemandGrid", "dgrid/Selection", "dijit/la
 		postCreate:function(){
 			var me=this;
 			this.set("style", "padding:0; overflow:hidden;");
+			lang.mixin(this.gridParams.store, {mayHaveChildren:function(item){
+				return me.gridParams.store.getChildren(item).length!=0;
+			}});
 			this.grid=new this._grid(this.gridParams);
-			console.log(this.grid);
 			domAttr.set(this.grid.domNode, "style", {height:"100%"});
 			this.addChild(this.grid);
 			this.grid.startup();

@@ -35,11 +35,20 @@ define(["dojo/_base/declare", "dojo/store/Memory", "dojo/Stateful", "dojo/store/
 					structure.set("items", items);
 				});				
 			});
+			mStore.startup();
 			return mStore;
 		}
 		this._Store=declare([Memory],{
+			_connects:[],
+			_queries:[],
 			getChildren:function(object){
-				return this.query({parent:object.id});
+				return this.query({parent:object.id})||[];
+			},
+			renderExpando:function(){
+				return false;
+			},
+			startup:function(){
+				
 			}
 		});
 		return this._createStore(items, folders);
