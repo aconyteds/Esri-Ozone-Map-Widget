@@ -2,10 +2,12 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
     "esri/layers/GraphicsLayer", "esri/graphic","esri/symbols/PictureMarkerSymbol", "esri/geometry/Point", "esri/InfoTemplate",
      "esri/layers/FeatureLayer", "esri/layers/ArcGISDynamicMapServiceLayer", "esri/layers/ArcGISTiledMapServiceLayer", "esri/layers/ArcGISImageServiceLayer", "esri/config",
      "esri/symbols/SimpleFillSymbol","esri/symbols/SimpleLineSymbol","esri/dijit/AttributeInspector", "dojo/dom-construct",
-     "esri/tasks/query", "dojo/_base/Color","esri/renderers/SimpleRenderer", "esri/urlUtils"],
+     "esri/tasks/query", "dojo/_base/Color","esri/renderers/SimpleRenderer", "esri/urlUtils", "dojo/on", "esri/dijit/AttributeInspector", "dijit/form/Button", "dojo/topic",
+     "dojo/_base/declare"],
     function(cmwapi, KMLLayer, WMSLayer, WMSLayerInfo, ViewUtils, GraphicsLayer, Graphic, PictureMarkerSymbol, Point, InfoTemplate,
         FeatureLayer, ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer, ArcGISImageServiceLayer, esriConfig, SimpleFillSymbol, SimpleLineSymbol,
-        AttributeInspector,domConstruct, Query, Color, SimpleRenderer, urlUtils) {
+        AttributeInspector,domConstruct, Query, Color, SimpleRenderer, urlUtils, on, AttributeInspector, Button, topic,
+        declare) {
 
     /**
      * @copyright © 2013 Environmental Systems Research Institute, Inc. (Esri)
@@ -329,7 +331,8 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
          * @memberof module:cmwapi-adapter/EsriOverlayManager/Feature#
          */
         var plotArcgisFeature = function(caller, overlayId, featureId, name, url, params, zoom) {
-            map.on("layers-add-result", handleQueryClick);
+            //map.on("layers-add-result", handleQueryClick);
+        	var updateFeature;
             params = params || {};
             params.mode = FeatureLayer.MODE_ONDEMAND;
             if(!params.outFields) {
@@ -345,7 +348,7 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
                   new Color([125,125,125,0.35])
             );
 
-            layer.setRenderer(new SimpleRenderer(symbol));
+            //layer.setRenderer(new SimpleRenderer(symbol));
             map.addLayers([layer]);
 
             var overlay = manager.overlays[overlayId];
@@ -357,7 +360,38 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
                     arcgisZoom(layer);
                 }
             });
-
+            
+            //Build the Attribute inspector for the Feature Layer.
+            function createAttInspector(){
+            	var aI=new AttributeInspector({layerInfos:[{'featureLayer':layer}]}, domConstruct.create("div"));
+        	
+	        	//add a save button next to the delete button
+	            var saveButton = new Button({ label: "Save", "style":"float:right; margin:0;"},domConstruct.create("div"));
+	            domConstruct.place(saveButton.domNode, aI.deleteBtn.domNode, "after");
+	            saveButton.on("click", function() {
+	                updateFeature.getLayer().applyEdits(null, [updateFeature], null);
+	            });
+	            
+	            aI.on("attribute-change", function(evt) {
+	                //store the updates to apply when the save button is clicked 
+	                updateFeature.attributes[evt.fieldName] = evt.fieldValue;
+	            });
+	            
+	            aI.on("next", function(evt) {
+		            updateFeature = evt.feature;
+		            console.log("Next " + updateFeature.attributes.objectid);
+	            });
+	
+	            aI.on("delete", function(evt) {
+	            	evt.feature.getLayer().applyEdits(null, null, [evt.feature]);
+	            	map.infoWindow.hide();
+	            });
+	            return aI;
+            }
+            
+            
+            var selectQuery = new Query(); 
+            
             layer.on('click', function(e) {
                 cmwapi.feature.selected.send({
                     overlayId:overlayId,
@@ -365,8 +399,27 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
                     selectedId: e.graphic.getLayer().id,
                     selectedName: e.graphic.getLayer().name
                 });
+                selectQuery.geometry=e.graphic.geometry;
+                var att=createAttInspector();
+            	layer.selectFeatures(selectQuery, FeatureLayer.SELECTION_NEW, function(features){
+	            	if (features.length > 0) {
+	            		map.infoWindow.setContent(att.domNode);
+	            		map.infoWindow.resize(350, 240);
+	            		updateFeature=features[0];
+	                    map.infoWindow.setTitle(features[0].getLayer().name);	                    
+	                    map.infoWindow.show(e.screenPoint,map.getInfoWindowAnchor(e.screenPoint));
+	                }
+	            });
             });
-
+            
+            on(map.infoWindow, "hide", function(){
+            	layer.clearSelection();
+            });
+            
+            
+            
+            
+            
             //Feature layers have information associated with the layer, this is to query for that
             //information on mouse click.
             function handleQueryClick(evt) {
@@ -379,6 +432,7 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
                         if (features.length > 0) {
                             map.infoWindow.setTitle(features[0].getLayer().name);
                             map.infoWindow.show(evt.screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
+                            
                         } else {
                             map.infoWindow.hide();
                         }

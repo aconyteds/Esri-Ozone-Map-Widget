@@ -138,7 +138,8 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         me.handlePortalItemAdd=function(sender, data){
         	//Add an overlay to the map, first determine the type of item being pushed
         	arcgisUtils.getItem(data.id).then(function(it){
-        		if(data.type==="Map Service"){
+        		console.log(data.type)
+        		if(data.type==="Map Service"|| data.type==="Feature Service"){
         			var item=it.item;
         			_handleMapService(item.id, item.url, item.title);
         		}

@@ -22,15 +22,13 @@ define(["dojo/_base/declare", "dgrid/OnDemandGrid", "dgrid/Selection", "dijit/la
 				this.grid.resize();
 			}));
 			this.grid.on("dgrid-select", function(event){
+				console.log(event);
 				var row=event.rows[0];
-				if(row.data.type=="Map Service" || row.data.type=="Web Map"){
-					cmwapi.portal.item.add.send({id:row.id, type:row.data.type, sharingUrl:me.sharingUrl});
-				}
+				cmwapi.portal.item.add.send({id:row.id, type:row.data.type, sharingUrl:me.sharingUrl});
 			});
 		},
 		_grid:declare([OnDemandGrid, Selection],{
 			noDataMessage:"No results were found"
-			
 		})
 	})	
 });
