@@ -331,7 +331,6 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
          * @memberof module:cmwapi-adapter/EsriOverlayManager/Feature#
          */
         var plotArcgisFeature = function(caller, overlayId, featureId, name, url, params, zoom) {
-            //map.on("layers-add-result", handleQueryClick);
         	var updateFeature;
             params = params || {};
             params.mode = FeatureLayer.MODE_ONDEMAND;
@@ -391,7 +390,7 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
             
             
             var selectQuery = new Query(); 
-            
+            var att=null;
             layer.on('click', function(e) {
                 cmwapi.feature.selected.send({
                     overlayId:overlayId,
@@ -400,7 +399,9 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
                     selectedName: e.graphic.getLayer().name
                 });
                 selectQuery.geometry=e.graphic.geometry;
-                var att=createAttInspector();
+                if(att!==null)
+                	att.destroy();
+                att=createAttInspector();
             	layer.selectFeatures(selectQuery, FeatureLayer.SELECTION_NEW, function(features){
 	            	if (features.length > 0) {
 	            		map.infoWindow.setContent(att.domNode);
@@ -415,41 +416,6 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
             on(map.infoWindow, "hide", function(){
             	layer.clearSelection();
             });
-            
-            
-            
-            
-            
-            //Feature layers have information associated with the layer, this is to query for that
-            //information on mouse click.
-            function handleQueryClick(evt) {
-                var layer = evt.layers[0].layer;
-                var selectQuery = new Query();
-
-                map.on("click", function(evt) {
-                    selectQuery.geometry = evt.mapPoint;
-                    layer.selectFeatures(selectQuery, FeatureLayer.SELECTION_NEW, function(features) {
-                        if (features.length > 0) {
-                            map.infoWindow.setTitle(features[0].getLayer().name);
-                            map.infoWindow.show(evt.screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
-                            
-                        } else {
-                            map.infoWindow.hide();
-                        }
-                    });
-                });
-
-                map.infoWindow.on("hide", function() {
-                    layer.clearSelection();
-                });
-
-                var attInspector = new esri.dijit.AttributeInspector({
-                  layerInfos:[{'featureLayer':layer}]
-                }, domConstruct.create("div"));
-
-                map.infoWindow.setContent(attInspector.domNode);
-                map.infoWindow.resize(350, 240);
-            }
 
             manager.treeChanged();
         };
