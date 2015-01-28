@@ -378,7 +378,7 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
 	            
 	            aI.on("next", function(evt) {
 		            updateFeature = evt.feature;
-		            console.log("Next " + updateFeature.attributes.objectid);
+		            //console.log("Next " + updateFeature.attributes.objectid);
 	            });
 	
 	            aI.on("delete", function(evt) {

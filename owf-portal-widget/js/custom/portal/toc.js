@@ -22,7 +22,7 @@ define(["dojo/_base/declare", "dgrid/OnDemandGrid", "dgrid/Selection", "dijit/la
 				this.grid.resize();
 			}));
 			this.grid.on("dgrid-select", function(event){
-				console.log(event);
+				//console.log(event);
 				var row=event.rows[0];
 				cmwapi.portal.item.add.send({id:row.id, type:row.data.type, sharingUrl:me.sharingUrl});
 			});

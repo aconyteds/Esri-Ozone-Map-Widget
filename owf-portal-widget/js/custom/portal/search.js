@@ -1,49 +1,18 @@
-define(["dojo/_base/declare",'dijit/_WidgetBase',"custom/portal/itemStore", "dojo/on", "dojo/Stateful", "dojo/_base/array", "dojo/_base/lang", 
+define(["dojo/_base/declare",'dijit/_WidgetBase', "dojo/on", "dojo/Stateful", "dojo/_base/array", "dojo/_base/lang", 
         "custom/portal/toc", "dgrid/tree", "dojo/store/Memory",  "dojo/store/Observable"], 
-		function(declare, _WidgetBase, itemStore, on, Stateful, array, lang,
+		function(declare, _WidgetBase,  on, Stateful, array, lang,
 				portalToc, Tree, Memory, Observable){
 	var Search=declare([_WidgetBase],{
-        postCreate:function(){
-        	var me=this;
-        	
-        	/*on(me.searchForm, "submit", function(e){
-        		var params=this.get("value");
-        		me.portal[params.filter]({q:"title:"+params.q+" AND type:'Maps' AND typekeywords:(('Web Map' -Application -Site) OR ('Service' AND 'Data') OR ('Data' AND 'KML))",
-        		num:"100", sortFields:"title, avgRating, created, numViews, type"}).then( function(data){
-    				console.log(data);
-        			var res=new me.results();
-        			if(params.filter==="queryGroups"){
-        				res.set("folders", data.results);
-        				res.getGroupItems();
-        			}
-        			else if(params.filter==="queryUsers"){
-        				res.set("folders", data.results);
-        				//res.getUserItems();
-        			}
-        			else{
-        				res.set("items", data.results);
-        				res.set("columns", [
-        				    {label:"Name", field:"title"},
-        				    {label:"Type", field:"type"}
-        				]);
-        			}
-        			me.createSearchResultTab( me.portalSharingUrl, me.searchUrl, res, "\""+ params.q+"\" - Results", me.targetContainer);
-        			//console.log([data, res]);
-        		});
-        		e.preventDefault();
-        		e.stopPropagation();
-        	});*/
-        },
-        execute:function(queryString, options, type){
-        	/**Function will execute a search and will populate an item store based upon the type of search
-        	 * queryString will be the string to search with
-        	 * options will be the eventual options search to use when finally reaching the item query
-        	 * type will be the type of search to be executed: [GROUP, USER, ITEM]
-        	 */
-        },
-        groupQuery:function(q,opt,target){
-        	var me=this;
-        	var res=this._initStore(this);
+		/**Functions will execute a search and will populate an item store based upon the type of search
+    	 * queryString will be the string to search with
+    	 * options will be the eventual options search to use when finally reaching the item query
+    	 * target will be the location to append the result TOC to
+    	 * types  of search to be executed: [GROUP, USER, ITEM]
+    	 */
+        groupQuery:function(q,opt,target,title){
+        	//Exectues a query for groups and returns items belonging to that group in a tree like fashion
+        	title=title?title:{str:"\""+q+"\" - Results", length:20};
+        	var me=this, res=this._initStore(this);
         	this.portal.queryGroups({q:q, num:100, sortFields:"title, avgRating, created, numViews, type"}).then(function(data){
         		res.set("columns", [Tree({label:"Name", field:"title"}),{label:"Type", field:"type"}]);
         		res.set("folders",  array.map(data.results, function(group){
@@ -56,31 +25,54 @@ define(["dojo/_base/declare",'dijit/_WidgetBase',"custom/portal/itemStore", "doj
     				lang.mixin(group, {parent:null, type:"Group"});
     				return group;
     			}));
-    			var mToc=me.createSearchResultContainer(me.portalSharingUrl, res, "\""+q+"\" - Results");
+    			var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, this._truncateText(title.str, title.length));
     			target.addChild(mToc);
     		});
         },
-        userQuery:function(q, opt, target){
-        	
+        userQuery:function(q, opt, target, title){
+        	title=title?title:{str:"\""+q+"\" - Results", length:20};
+        	var me=this, res=this._initStore(this);
+        	this.portal.queryUsers({q:q, num:100, sortFields:"title, avgRating, created, numViews, type"}).then(function(data){
+        		//data=users; we want folders and items, then we want items for folders
+        		res.set("columns", [Tree({label:"Name", field:"title"}),{label:"Type", field:"type"}]);
+        		res.set("folders",  array.map(data.results, function(user){
+        			user.getContent().then(function(userData){
+        				res.set("folders", array.map(userData.folders, function(folder){
+        					folder.getItems().then(function(items){
+        						res.set("items", array.map(items, function(item){
+        							lang.mixin(item, {parent:item.folderId, children:null});
+        							return item;
+        						}));
+        					});
+        					lang.mixin(folder, {parent:user.username, type:"Folder"});
+        					return folder;
+        				}));
+        				res.set("items", array.map(userData.items, function(item){
+        					lang.mixin(item, {parent:user.username, children:null});
+        					return item;
+        				}));
+        			});
+        			return {title:user.fullName, id:user.username, type:"User", url:user.userContentUrl, parent:null};
+        		}));
+        		var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, this._truncateText(title.str, title.length));
+    			target.addChild(mToc);
+        	});
         },
-        itemQuery:function(q, opt, target){
-        	var res=this._initStore(this), me=this;
+        itemQuery:function(q, opt, target, title){
+        	//Returns a list of items given a search string
+        	title=title?title:{str:"\""+q+"\" - Results", length:20};
+        	var me=this, res=this._initStore(this);
         	res.set("columns", [{label:"Name", field:"title"},{label:"Type", field:"type"}]);
         	this.portal.queryItems({q:q+(opt||""), num:100, sortFields:"title, avgRating, created, numViews, type"}).then(function(data){
         		res.set("items", array.map(data.results, function(item){
         			lang.mixin(item, {parent:null, children:null});
         			return item;
         		}));
-        		var mToc=me.createSearchResultContainer(me.portalSharingUrl, res, "\""+q+"\" - Results");
+        		var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, this._truncateText(title.str, title.length));
     			target.addChild(mToc);
         	});
         },
-        _initStore:function(me){
-        	var res=new me.results();
-    		res.startup();
-    		return res;
-        },
-        createSearchResultContainer:function(portalSharingUrl, result, title){
+        _createSearchResultContainer:function(portalSharingUrl, result, title){
         	var me=this;
         	var userGridParams={
 				store:result.store,
@@ -91,7 +83,7 @@ define(["dojo/_base/declare",'dijit/_WidgetBase',"custom/portal/itemStore", "doj
 			};
 			return new portalToc({title:title, gridParams:userGridParams, sharingUrl:portalSharingUrl, closable:true});
         },        
-        results:declare([Stateful],{
+        _results:declare([Stateful],{
         	items:[],
         	folders:[],
         	columns:[],
@@ -148,7 +140,18 @@ define(["dojo/_base/declare",'dijit/_WidgetBase',"custom/portal/itemStore", "doj
         			console.log(data);
         		});*/
         	}
-        })
+        }),
+        _initStore:function(me){
+        	var res=new me._results();
+    		res.startup();
+    		return res;
+        },
+        _truncateText:function(str, length){
+			if(str.length>length){
+				str=str.substring(0,length)+"...";
+			}
+			return str;
+		}        
 	});	
 	return Search;
 });

@@ -108,7 +108,7 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         		var confirm=new Deferred();
         		var confirmation=new Dialog({
 	            	title:"WARNING!",
-	            	content:"This action will remove all current Layers from the Map. Continue?"
+	            	content:"This action will remove all current layers from the map. Continue?"
 	            });
         		confirmation.addChild(new Button({label:"Confirm",onClick:function(){
 	        			cmwapi.overlay.remove.all.send();
@@ -138,7 +138,7 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         me.handlePortalItemAdd=function(sender, data){
         	//Add an overlay to the map, first determine the type of item being pushed
         	arcgisUtils.getItem(data.id).then(function(it){
-        		console.log(data.type)
+        		console.log("Attempting to add a new "+data.type+" to the Map.");
         		if(data.type==="Map Service"|| data.type==="Feature Service"){
         			var item=it.item;
         			_handleMapService(item.id, item.url, item.title);

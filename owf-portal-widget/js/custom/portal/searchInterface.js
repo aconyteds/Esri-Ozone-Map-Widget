@@ -1,9 +1,9 @@
-define(["dojo/_base/declare",'dijit/_WidgetBase','dijit/_TemplatedMixin','dijit/_WidgetsInTemplateMixin', 'dojo/text!../templates/search.html',
-        "dijit/form/Select", "dijit/form/TextBox", "dijit/form/Form", "dijit/form/Button","custom/portal/itemStore", "dojo/on", "dojo/Stateful", "dojo/_base/array", "dojo/_base/lang", 
-        "custom/portal/toc", "dijit/TitlePane", "dijit/form/CheckBox"], 
+define(["dojo/_base/declare",'dijit/_WidgetBase','dijit/_TemplatedMixin','dijit/_WidgetsInTemplateMixin', 'dojo/text!../templates/searchInterface.html',
+        "dijit/form/Select", "dijit/form/TextBox", "dijit/form/Form", "dijit/form/Button", "dojo/on", "dojo/Stateful", "dojo/_base/array", "dojo/_base/lang", 
+        "dijit/TitlePane", "dijit/form/CheckBox"], 
 		function(declare, _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, searchTemplate,
-				Select, TextBox, Form, Button, itemStore, on, Stateful, array, lang,
-				portalToc, TitlePane, CheckBox){
+				Select, TextBox, Form, Button,  on, Stateful, array, lang,
+				TitlePane, CheckBox){
 	var Search=declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin],{
 		widgetsInTemplate: true,
         templateString: searchTemplate,
@@ -11,42 +11,17 @@ define(["dojo/_base/declare",'dijit/_WidgetBase','dijit/_TemplatedMixin','dijit/
         	var me=this;
         	//console.log(this);
         	on(me.searchForm, "submit", function(e){
+        		//" AND type:'Maps' AND typekeywords:(('Web Map' -Application -Site) OR ('Service' AND 'Data') OR ('Data' AND 'KML))" - POSSIBLE FILTERING
         		var params=this.get("value");
-        		me.portal[params.filter]({q:"title:"+params.q/*+" AND type:'Maps' AND typekeywords:(('Web Map' -Application -Site) OR ('Service' AND 'Data') OR ('Data' AND 'KML))"*/,
-        		num:"100", sortFields:"title, avgRating, created, numViews, type"}).then( function(data){
-    				console.log(data);
-        			var res=new me.results();
-        			if(params.filter==="queryGroups"){
-        				res.set("folders", data.results);
-        				res.getGroupItems();
-        			}
-        			else if(params.filter==="queryUsers"){
-        				res.set("folders", data.results);
-        				//res.getUserItems();
-        			}
-        			else{
-        				res.set("items", data.results);
-        				res.set("columns", [
-        				    {label:"Name", field:"title"},
-        				    {label:"Type", field:"type"}
-        				]);
-        			}
-        			me.createSearchResultTab( me.portalSharingUrl, me.searchUrl, res, "\""+ params.q+"\" - Results", me.targetContainer);
-        			//console.log([data, res]);
-        		});
+        		if(params.filter=="queryGroups")
+        			me.searchWorker.groupQuery(params.q,null, me.targetContainer);
+        		else if(params.filter=="queryItems")
+        			me.searchWorker.itemQuery(params.q,null, me.targetContainer);
+        		else if(params.filter=="queryUsers")
+        			me.searchWorker.userQuery(params.q,null, me.targetContainer);
         		e.preventDefault();
         		e.stopPropagation();
         	});
-        },
-        createSearchResultTab:function( portalSharingUrl, searchUrl, result, title, target){
-        	var userGridParams={
-				store:itemStore(result.get("items"), result.get("folders"), searchUrl),
-				selectionMode:"single",
-				query:{parent:null},
-				sort:"title",
-				columns:result.get("columns")
-			};
-			target.addChild(new portalToc({title:title, gridParams:userGridParams, sharingUrl:portalSharingUrl, closable:true}));
         },
         results:declare([Stateful],{
         	items:[],
@@ -79,29 +54,6 @@ define(["dojo/_base/declare",'dijit/_WidgetBase','dijit/_TemplatedMixin','dijit/
         	},
         	_columnsSetter:function(value){
         		this.columns=value;	
-        	},
-        	getGroupItems:function(indx){
-        		/**
-        		 * GROUPS
-        		 * 		Members
-        		 * 			getUserItems
-        		**/
-        		var me=this;
-        		array.forEach(this.folders, function(group){
-        			//console.log(group);
-        			lang.mixin(group.results, {parent:group.id});
-        			me.set("items", group.results);
-        		});
-        	},
-        	getUserItems:function(indx){
-        		/*
-        		 * 	Folders
-        		 * 		getItems
-        		 * 	Items
-        		 */
-        	},
-        	getItems:function(){
-        		
         	}
         })
 	});	
