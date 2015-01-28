@@ -9,9 +9,13 @@ define(["dojo/_base/declare",'dijit/_WidgetBase', "dojo/on", "dojo/Stateful", "d
     	 * target will be the location to append the result TOC to
     	 * types  of search to be executed: [GROUP, USER, ITEM]
     	 */
+		_maxTitleLength:20,
+		postMixInProperties:function(params){
+			this._maxTitleLength=this.maxTitleLength;
+		},
         groupQuery:function(q,opt,target,title){
         	//Exectues a query for groups and returns items belonging to that group in a tree like fashion
-        	title=title?title:{str:"\""+q+"\" - Results", length:20};
+        	title=title?title:{str:"\""+q+"\" - Results", length:this._maxTitleLength};
         	var me=this, res=this._initStore(this);
         	this.portal.queryGroups({q:q, num:100, sortFields:"title, avgRating, created, numViews, type"}).then(function(data){
         		res.set("columns", [Tree({label:"Name", field:"title"}),{label:"Type", field:"type"}]);
@@ -25,12 +29,12 @@ define(["dojo/_base/declare",'dijit/_WidgetBase', "dojo/on", "dojo/Stateful", "d
     				lang.mixin(group, {parent:null, type:"Group"});
     				return group;
     			}));
-    			var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, this._truncateText(title.str, title.length));
+    			var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, me._truncateText(title.str, title.length));
     			target.addChild(mToc);
     		});
         },
         userQuery:function(q, opt, target, title){
-        	title=title?title:{str:"\""+q+"\" - Results", length:20};
+        	title=title?title:{str:"\""+q+"\" - Results", length:this._maxTitleLength};
         	var me=this, res=this._initStore(this);
         	this.portal.queryUsers({q:q, num:100, sortFields:"title, avgRating, created, numViews, type"}).then(function(data){
         		//data=users; we want folders and items, then we want items for folders
@@ -54,13 +58,13 @@ define(["dojo/_base/declare",'dijit/_WidgetBase', "dojo/on", "dojo/Stateful", "d
         			});
         			return {title:user.fullName, id:user.username, type:"User", url:user.userContentUrl, parent:null};
         		}));
-        		var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, this._truncateText(title.str, title.length));
+        		var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, me._truncateText(title.str, title.length));
     			target.addChild(mToc);
         	});
         },
         itemQuery:function(q, opt, target, title){
         	//Returns a list of items given a search string
-        	title=title?title:{str:"\""+q+"\" - Results", length:20};
+        	title=title?title:{str:"\""+q+"\" - Results", length:this._maxTitleLength};
         	var me=this, res=this._initStore(this);
         	res.set("columns", [{label:"Name", field:"title"},{label:"Type", field:"type"}]);
         	this.portal.queryItems({q:q+(opt||""), num:100, sortFields:"title, avgRating, created, numViews, type"}).then(function(data){
@@ -68,7 +72,7 @@ define(["dojo/_base/declare",'dijit/_WidgetBase', "dojo/on", "dojo/Stateful", "d
         			lang.mixin(item, {parent:null, children:null});
         			return item;
         		}));
-        		var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, this._truncateText(title.str, title.length));
+        		var mToc=me._createSearchResultContainer(me.portalSharingUrl, res, me._truncateText(title.str, title.length));
     			target.addChild(mToc);
         	});
         },
