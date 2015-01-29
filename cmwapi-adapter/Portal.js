@@ -125,9 +125,10 @@ define(["cmwapi/cmwapi", "esri/basemaps", "dijit/layout/ContentPane", "dijit/reg
         		//User Pressed Accept Button
         		succ.destroy();
         		//console.log(["Resolution:", obj]);
+        		cmwapi.overlay.create.send({overlayId:obj.item.id, name:obj.item.title});
         		cmwapi.portal.basemaps.set.send({id:obj.item.id, data:obj.itemData.baseMap});
         		array.forEach(obj.itemData.operationalLayers, function(layer){
-        			_handleMapService(layer.id, layer.url, layer.title);
+        			_handleMapService(obj.item.id, layer.url, layer.title);
         		});
         	},function(err){
         		//User Pressed Cancel Button
