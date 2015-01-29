@@ -330,6 +330,9 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
          * @param [zoom] {Boolean} If the plotted feature should be zoomed to upon being plotted
          * @memberof module:cmwapi-adapter/EsriOverlayManager/Feature#
          */
+        map.on("layer-remove",function(obj){
+        	topic.publish("map/layer/remove", obj.layer);
+        });
         var plotArcgisFeature = function(caller, overlayId, featureId, name, url, params, zoom) {
         	var updateFeature;
             params = params || {};
@@ -353,8 +356,13 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
             var overlay = manager.overlays[overlayId];
             overlay.features[featureId] = new Feature(overlayId, featureId, name, 'arcgis-feature', url, zoom, layer);
             overlay.features[featureId].params = params;
-
+            
+            var udCap;
             layer.on("load", function() {
+            	udCap=layer.getEditCapabilities();
+                if(udCap.canCreate){
+                	topic.publish("map/layer/FeatureLayer/Added", layer);
+                }
                 if(zoom) {
                     arcgisZoom(layer);
                 }
@@ -365,26 +373,28 @@ define(["cmwapi/cmwapi", "esri/layers/KMLLayer", "esri/layers/WMSLayer", "esri/l
             	var aI=new AttributeInspector({layerInfos:[{'featureLayer':layer}]}, domConstruct.create("div"));
         	
 	        	//add a save button next to the delete button
-	            var saveButton = new Button({ label: "Save", "style":"float:right; margin:0;"},domConstruct.create("div"));
-	            domConstruct.place(saveButton.domNode, aI.deleteBtn.domNode, "after");
-	            saveButton.on("click", function() {
-	                updateFeature.getLayer().applyEdits(null, [updateFeature], null);
-	            });
-	            
-	            aI.on("attribute-change", function(evt) {
-	                //store the updates to apply when the save button is clicked 
-	                updateFeature.attributes[evt.fieldName] = evt.fieldValue;
-	            });
-	            
-	            aI.on("next", function(evt) {
-		            updateFeature = evt.feature;
-		            //console.log("Next " + updateFeature.attributes.objectid);
-	            });
-	
-	            aI.on("delete", function(evt) {
-	            	evt.feature.getLayer().applyEdits(null, null, [evt.feature]);
-	            	map.infoWindow.hide();
-	            });
+            	
+            	if(udCap.canUpdate){
+		            var saveButton = new Button({ label: "Save", "style":"float:right; margin:0;"},domConstruct.create("div"));
+		            domConstruct.place(saveButton.domNode, aI.deleteBtn.domNode, "after");
+		            saveButton.on("click", function() {
+		                updateFeature.getLayer().applyEdits(null, [updateFeature], null);
+		            });
+		            aI.on("attribute-change", function(evt) {
+		                //store the updates to apply when the save button is clicked 
+		                updateFeature.attributes[evt.fieldName] = evt.fieldValue;
+		            });
+		            
+		            aI.on("next", function(evt) {
+			            updateFeature = evt.feature;
+			            //console.log("Next " + updateFeature.attributes.objectid);
+		            });
+		            
+		            aI.on("delete", function(evt) {
+		            	evt.feature.getLayer().applyEdits(null, null, [evt.feature]);
+		            	map.infoWindow.hide();
+		            });
+            	}
 	            return aI;
             }
             

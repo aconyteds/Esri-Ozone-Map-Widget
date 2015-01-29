@@ -24,13 +24,15 @@
 require([
     "esri/map", "digits/overlayManager/js/overlayManager", "digits/legend/js/legend",
     "digits/basemapGallery/js/basemapGallery", "esri/dijit/Scalebar", "esri/dijit/Geocoder", "dojo/_base/array",
-    "dojo/parser", "notify/notify.min", "dojo/dom-style", "dojo/domReady!"],
-    function(Map, OverlayManager, Legend, BasemapGallery, Scalebar, Geocoder, arrayUtils, parser) {
+    "dojo/parser", "digits/featureMenu/js/featureMenu", "notify/notify.min", "dojo/domReady!"],
+    function(Map, OverlayManager, Legend, BasemapGallery, Scalebar, Geocoder, arrayUtils, parser, featureMenu) {
 
     var map = new Map("map", {
         basemap: "streets"
     });
     parser.parse();
+    
+    var featuremenu=new featureMenu({map:map, title:"Add Point Features to the Map", targetNodeIds:['map']}).initialize().startup();
 
     var legend = new Legend(map);
 

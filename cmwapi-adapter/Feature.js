@@ -75,7 +75,6 @@ define(["cmwapi/cmwapi", "cmwapi-adapter/feature/Status"], function(CommonMapApi
          * @memberof module:cmwapi-adapter/Feature#
          */
         me.handlePlotUrl = function(sender, data) {
-        	console.log([data, overlayManager]);
             if(data.length > 1) {
                 var data_item;
                 for(var i = 0; i < data.length; i++) {
