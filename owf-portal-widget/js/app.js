@@ -21,8 +21,8 @@
 //
 // NOTE: Modules that are not compatible with asynchronous module loading
 // (AMD) are included in the webapp's HTML file to prevent issues.
-require(['dojo/_base/xhr', "custom/imw", "dojo/_base/array", "esri/arcgis/Portal", "custom/portal","cmwapi/cmwapi", "esri/IdentityManager", "esri/arcgis/OAuthInfo", "dojo/domReady!"],
-    function(xhr, imw, array, arcgisPortal, portal, cmwapi, esriId, OAuthInfo){
+require(['dojo/_base/xhr', "dojo/_base/array", "esri/arcgis/Portal", "custom/portal","cmwapi/cmwapi", "esri/IdentityManager", "esri/arcgis/OAuthInfo", "dojo/domReady!"],
+    function(xhr, array, arcgisPortal, portal, cmwapi, esriId, OAuthInfo){
 	xhr.get({url:"js/config.json", handleAs:"json",load: function(data){
 		var oAuthInfo = esriId.findOAuthInfo(data.portalInfo.portalUrl);
 		if(!oAuthInfo){
