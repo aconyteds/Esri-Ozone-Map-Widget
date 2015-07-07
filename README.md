@@ -40,6 +40,10 @@ A simple map widget using the ESRI [ArcGIS JavaScript API](https://developers.ar
 
 A modified version of the [Contacts Manager](https://github.com/ozoneplatform/owf/tree/master/web-app/examples/walkthrough/widgets/contacts) example widget that ships with OWF 7. This version uses Intents to allow the user to select which map widget implementation should receive the address when contact entry is clicked. (The original version was hard coded to send the address to a specific map widget.)
 
+#### [Portal] (https://github.com/Esri/Esri-Ozone-Map-Widget/tree/master/owf-portal-widget)
+
+A simple implementation showcasing the ability to integrate Portal within the Ozone Widget Framework. This version allows for the use of OAuth authentication to enable a user to view, load, and update information within their organizations Portal.
+
 ## Limitations / Known Issues
 
 1. CMWAPI map.feature.plot messages are not supported by the map widget.  ArcGIS KMLLayers make use of an ArcGIS Portal service to parse KML data.  This service requires accessible URLs to KML data and does not accept KML string input.  See the [KML Layer JavaScript documentation] (https://developers.arcgis.com/javascript/jsapi/kmllayer-amd.html) for more details.  A client side parser or an enhancement to the KML processing service may be provided in an update. 
@@ -47,6 +51,8 @@ A modified version of the [Contacts Manager](https://github.com/ozoneplatform/ow
 2. CMWAPI Drag and Drop messages that include "feature" attributes are not supported by the map widget.  These drag and drop messages provide KML data in string format.  See limitation 1.  Note that CMWAPI drag and drop messages that provide markers or feature URLs are supported.
 
 3. "Zooming" to added feature layers when they are created is supported for features that can be rendered in one pass.  Composite features (e.g., KMZ files) that may result in multiple asynchronous data pulls do not auto-zoom the map after loading.  This may be added as an enhancement but can present certain usability issues.  If any of the asynchronous calls takes a long time, the eventual zooming to data may not appear connected to the user action that triggered it.
+
+4. Loading content from Portal can sometimes cause issues if there is a problem with the security of the resources vs the security of the deployed environment.
 
 ## Requirements
 
@@ -90,8 +96,23 @@ A modified version of the [Contacts Manager](https://github.com/ozoneplatform/ow
     * http(s)://_**yourserver**_:_**port**_/esri/contacts/descriptor/descriptor.html
     * http(s)://_**yourserver**_:_**port**_/esri/owf-context-map-widget/descriptor.html
     * http(s)://_**yourserver**_:_**port**_/esri/image-collection-query-widget/descriptor.html
+    * http(s)://_**yourserver**_:_**port**_/esri/owf-portal-widget/descriptor.html
 
 5. Assign the widgets to the [OWF Users Group](https://github.com/ozoneplatform/owf/wiki/OWF-7-Administrator-Default-Content) or to specific users so they can be opened.
+
+## Portal Implementation Instructions (Optional)
+> If you wish to integrate Portal with your Ozone Widget Framework Implementation
+
+Once you have finished deploying the Esri widgets and have verified they are working within your Ozone environment; complete the following steps to enable Portal to communicate with your environment.
+
+1. Login to your portal as an administrator with publisher rights and navigate to "My Content."
+2. Select "Add Item" and navigate to "An Application" to launch the Add Item dialog.
+3. Provide the URL for your Ozone Application, Select Web Mapping, Ready to Use, Javascript, and fill out the Title and Tags information and press "Add Item."
+4. If not taken to the details page for the registered application, select the title in the "My Content" section.
+5. Share the application with the necessary groups and make any other modifications you wish to ensure users can find the application within your Portal.
+6. Under App Registration, select "REGISTER"
+7. Keep App Type as Browser, and add any URLs which can be used to access your application. When done press "REGISTER."
+8. In your deployment, update <install path>/owf-portal-widget/js/config.json with the URL for your Portal and the App ID in the App Registration section on the Item Details Page.
 
 ## Development Environment Setup
 
